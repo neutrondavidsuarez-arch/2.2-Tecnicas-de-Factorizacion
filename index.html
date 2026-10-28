@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLearning - Tema 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({ publicKey: "3LjnpLaDboHWv0VPY" });
+        })();
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .iframe-container { position: relative; width: 100%; height: 75vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .nav-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .nav-btn.active { border-color: #10b981; color: #10b981; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .dot-pulse { animation: pulse-dot 1.2s infinite; }
+        .question-img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-xl font-black text-emerald-600 tracking-tight">UNIDAD 2</h1>
+                    <p class="text-slate-500 font-bold text-xs uppercase">Tema 2.2: Técnicas De Factorización</p>
+                </div>
+               
+                <nav class="flex flex-wrap justify-center gap-1 md:gap-4">
+                    <button onclick="prepQuiz('deber', this)" class="nav-btn active px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>🧪</span> Deber
+                    </button>
+                    <button onclick="prepQuiz('evaluacion', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📝</span> Repaso
+                    </button>
+                    <button onclick="prepQuiz('extra', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📚</span> Práctica
+                    </button>
+                    <button onclick="prepQuiz('evaluacion_final', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📊</span> Evaluación
+                    </button>
+                    <button onclick="showSection('pdf', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📋</span> Pizarra
+                    </button>
+                    <button onclick="showSection('video', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>🎥</span> Video
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main id="app" class="max-w-5xl mx-auto p-6">
+    </main>
+    <script>
+        const DRIVE_PDF_URL = "https://drive.google.com/file/d/1nZggRrPkevC3Twhki975k3w-p07AS7N3/view?usp=sharing";
+        const DRIVE_VIDEO_URL = "https://drive.google.com/file/d/1D9a5Q0bB4D-qnxB4X3kMMFZjQG0BUFKZ/view?usp=sharing";
+
+        // PRINCIPAL (Deber + Repaso) 30/10 preguntas
+const quizData = [
+          { question: '  Relacione el polinomio con su respuesta equivalente. <br> Polinomio: <br> (1). 3t<sup>3</sup>-3st<sup>2</sup>-6s<sup>2</sup>t <br> (2). 12t<sup>3</sup>-27s<sup>2</sup> t <br> (3). 48s<sup>4</sup> t-243t<sup>5</sup> <br> Equivalente: <br> (A). 3t(2t+3s)(2t-3s) <br> (B). 3t(4s<sup>2</sup>+9t<sup>2</sup>)(2s+3t)(2s-3t) <br> (C). 3t(t+s)(t-2s)', options: ['1A-2B-3C', '1B-2A-3C', '1C-2A-3B', '1C-2B-3A'], answer: '1C-2A-3B', explanation: ' <br> <img src="https://i.ibb.co/TBFWWwPZ/Captura-de-pantalla-2026-10-24-100725.png" alt="Descripción de la imagen" width="400" height="200">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Un estudiante de agronomía debe realizar el plano de una parcela rectangular de terreno, la información que dispone es el área y uno de sus lados: <br> Área = x<sup>2</sup>+13x+36 <br> Lado 1 = x+9 <br> Determine la expresión del lado faltante del terreno.', options: ['x+4', '2x-3', 'x-4', '2x+4'], answer: 'x+4', explanation: ' <br> <img src="https://i.ibb.co/XrL8Mk3J/Captura-de-pantalla-2026-10-24-101052.png" alt="Descripción de la imagen" width="300" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Las dimensiones de un mantel de cocina de forma rectangular son: <br> Largo: (6x<sup>2</sup>-12x)(x-2) <br> Ancho: (x-2)(4-2x) <br> Se desea colocar una decoración en los bordes, determine la expresión que indique la longitud de cinta decoradora que será necesaria.', options: ['4(x-2)(x-2)(3x+1)', '4(x-2)(x+2)(3x-1)', '4(x-2)(x-2)(3x-1)', '4(x-2)(x+2)(3x+1)'], answer: '4(x-2)(x-2)(3x-1)', explanation: ' <br> <img src="https://i.ibb.co/HfDXMHKn/Captura-de-pantalla-2026-10-24-101255.png" alt="Descripción de la imagen" width="400" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice hasta llegar a la mínima expresión: <br> <div style="font-family:serif;font-size:1.4em;display:inline-flex;align-items:center;gap:8px"><span style="display:inline-block;text-align:center;line-height:1.2"><span>27 − x³</span><br><span style="border-top:1.5px solid;padding-top:2px">(x² + x − 6)</span></span><span>÷</span><span style="display:inline-block;text-align:center;line-height:1.2"><span>1</span><br><span style="border-top:1.5px solid;padding-top:2px">(9 − x²)</span></span></div>', options: ['<div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><span>x² + 3x + 9</span><br><span style="border-top:1.5px solid;padding-top:2px">(x + 3)²(x − 2)</span></div>', '<div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><span>x² + 3x + 9</span><br><span style="border-top:1.5px solid;padding-top:2px">(x² − 9)(x − 2)</span></div>', '<div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><span>x² − 3x + 9</span><br><span style="border-top:1.5px solid;padding-top:2px">(x + 3)²(x − 2)</span></div>', '<div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><span>x² − 3x + 9</span><br><span style="border-top:1.5px solid;padding-top:2px">(x² − 9)(x − 2)</span></div>'], answer: '<div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><span>x² + 3x + 9</span><br><span style="border-top:1.5px solid;padding-top:2px">(x + 3)²(x − 2)</span></div>', explanation: ' <br> <img src="https://i.ibb.co/DPBHvmrh/Captura-de-pantalla-2026-10-27-141504.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: '  El área de una pared rectangular viene dada por la expresión:  <br> Área=15x<sup>2</sup>-10x  <br> Se sabe que la base es:  <br> Base=5x  <br> Determine la altura de la pared.', options: ['2-3x', 'x+1', '3x-2', '2x-3'], answer: '3x-2', explanation: ' <br> <img src="https://i.ibb.co/tp43f9X1/Captura-de-pantalla-2026-10-27-141727.png" alt="Descripción de la imagen" width="500" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Una fotografía rectangular tiene como área (x<sup>2</sup>+xy+xz+yz) y de base (x+y), determine la altura en centímetros si, x=10cm , y=20cm y z=30cm.', options: ['20 cm', '40 cm', '60 cm', '80 cm'], answer: '40 cm', explanation: ' <br> <img src="https://i.ibb.co/70QLSNw/Captura-de-pantalla-2026-10-27-141827.png" alt="Descripción de la imagen" width="300" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Un ingeniero aeronáutico observa una pieza contenida en un recipiente de vidrio que contiene un fluido traslúcido, lo que ocasiona que el objeto se visibilice con proporciones diferentes. Debemos ayudarle a determinar si el objeto es cuadrado o rectangular tomando en cuenta que la etiqueta dice lo siguiente: <br> Área=196-56x+4x<sup>2</sup> <br> Lado=2(7-x) ', options: ['Cuadrada', 'Rectangular'], answer: 'Cuadrada', explanation: ' <br> <img src="https://i.ibb.co/M5xb73JM/Captura-de-pantalla-2026-10-27-141919.png" alt="Descripción de la imagen" width="500" height="200">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Una persona pagó C dólares por N productos: <br> C=t<sup>2</sup>+4t-32 <br> N=t-4 <br> Determine el precio de cada producto en dólares:', options: ['2(t+4)', '2(t-4)', 't-8', 't+8'], answer: 't+8', explanation: ' <br> <img src="https://i.ibb.co/B5nhBxJf/Captura-de-pantalla-2026-10-27-142026.png" alt="Descripción de la imagen" width="500" height="350">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Determine la expresión que corresponde al área sombreada: <br> <img src="https://i.ibb.co/SD1vFx83/Captura-de-pantalla-2026-10-27-142456.png" alt="Descripción de la imagen" width="400" height="250">', options: ['(x+5)(y)-(x+5)(-y)', '(x+5)-(y)', '(x+5-y)-(x+5-y)', '(x+5-y)(x+5+y)'], answer: '(x+5-y)(x+5+y)', explanation: ' <br> <img src="https://i.ibb.co/tPpN0PB1/Captura-de-pantalla-2026-10-27-142628.png" alt="Descripción de la imagen" width="500" height="480">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'En un examen de aptitudes matemáticas, el docente pide a sus alumnos factorizar las siguientes expresiones: <br> 1. 4x<sup>2</sup>-12x+9-16y<sup>2</sup> <br> 2. 9x<sup>2</sup>+24x+16-9y<sup>2</sup> <br> Donde los grupos A y B factorizaron la primera expresión, mientras que los grupos C y D factorizaron la segunda expresión. <br> Grupo A: (2x+3-4y)(2x-3-4y) <br> Grupo B: (2x-3-4y)(2x-3+4y) <br> Grupo C: (3x+4-3y)(3x+4+3y) <br> Grupo D: (3x-4-3y)(3x-4+3y) <br> Seleccione los grupos que obtuvieron la respuesta correcta.', options: ['Grupo B y Grupo C', 'Grupo A y Grupo D', 'Grupo B y Grupo D', 'Grupo A y Grupo C'], answer: 'Grupo B y Grupo C', explanation: ' <br> <img src="https://i.ibb.co/ZpZ3X2gr/Captura-de-pantalla-2026-10-27-142812.png" alt="Descripción de la imagen" width="500" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'El lado de un terreno cuadrado viene dado por: <br> 7x+11 <br> Seleccione la expresión equivalente al área:', options: ['36x<sup>2</sup>+126x+136', '35x<sup>2</sup>+144x+144', '56x<sup>2</sup>+197x+111', '49x<sup>2</sup>+154x+121'], answer: '49x<sup>2</sup>+154x+121', explanation: ' <br> <img src="https://i.ibb.co/93YhByWb/Captura-de-pantalla-2026-10-27-142926.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Los lados de una mesa rectangular vienen representados por las siguientes expresiones: <br> lado 1: x-8 <br> lado 2: x-1 <br> Determine la expresión de su área.', options: ['2x<sup>2</sup>+9x+8', 'x<sup>2</sup>-9x+8', 'x<sup>2</sup>-9x-8', 'x<sup>2</sup>+9x-8'], answer: 'x<sup>2</sup>-9x-8', explanation: ' <br> <img src="https://i.ibb.co/JWJQrjgF/Captura-de-pantalla-2026-10-27-143034.png" alt="Descripción de la imagen" width="550" height="450"> .', multi: 'OFF', maxSelect: 1 },
+          { question: 'Pedro debe comprar azulejos para su hogar, el precio depende del área de cobertura, si se conoce que las dimensiones son: <br> largo:11x<sup>2</sup>-xy<sup>2</sup>-6y<sup>4</sup> <br> ancho: 11x<sup>2</sup>+xy<sup>2</sup>-6y<sup>4</sup> <br> Determine la expresión que describe el precio de 10 azulejos:', options: ['121x<sup>4</sup>-133x<sup>2</sup> y<sup>4</sup>+36y<sup>8</sup>', '1210x<sup>4</sup>-1330x<sup>2</sup> y<sup>4</sup>+360y<sup>8</sup>', '111x<sup>4</sup>+133x<sup>2</sup> y<sup>4</sup>+39y<sup>8</sup>', 'x<sup>4</sup>-x<sup>2</sup> y<sup>4</sup>+y<sup>8</sup>'], answer: '1210x<sup>4</sup>-1330x<sup>2</sup> y<sup>4</sup>+360y<sup>8</sup>', explanation: ' <br> <img src="https://i.ibb.co/dJsjhyyn/Captura-de-pantalla-2026-10-27-143244.png" alt="Descripción de la imagen" width="550" height="450">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Camila acude a una tienda y ve que existe una promoción de pantalones a n<sup>2</sup>+2n+1 dólares, decide comprar n<sup>2</sup>-2n-1 unidades. ¿Cuál es la expresión qué representa el total a pagar?', options: ['n<sup>4</sup>-4n<sup>2</sup>-4n-1', 'n<sup>4</sup>+4n<sup>2</sup>-4n-1', 'n<sup>4</sup>+4n<sup>2</sup>+4n-1', 'n<sup>4</sup>-4n<sup>2</sup>-4n+1'], answer: 'n<sup>4</sup>-4n<sup>2</sup>-4n-1', explanation: ' <br> <img src="https://i.ibb.co/Ym0SqNM/Captura-de-pantalla-2026-10-27-143821.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Joaquín paga por un paquete de m<sup>2</sup>+n<sup>2</sup>+mn unidades de esferos la suma de m<sup>4</sup>+m<sup>2</sup> n<sup>2</sup>+n<sup>4</sup>, determine la expresión del precio de cada esfero.', options: ['3m<sup>2</sup>+n<sup>2</sup>-2mn', 'm<sup>2</sup>+n<sup>2</sup>-mn', 'm<sup>2</sup>+4n<sup>2</sup>-mn', 'm<sup>2</sup>+n<sup>2</sup>-8mn'], answer: 'm<sup>2</sup>+n<sup>2</sup>-mn', explanation: ' <br> <img src="https://i.ibb.co/vxSwyjKn/Captura-de-pantalla-2026-10-27-143939.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'La plataforma de un centro comercial tiene un área de: <br> 3ax-2by-2bx-6a+3ay+4b <br> Determine uno de sus lados, sabiendo que la geometría es rectangular: <br> Lado 1:(x+y-2)', options: ['x+y+2', '2x-2y-3', '3a-2b', '4x-6a'], answer: '3a-2b', explanation: ' <br> <img src="https://i.ibb.co/JWscHv33/Captura-de-pantalla-2026-10-27-144031.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'El área de un triángulo viene dada por la expresión: <br> <div style="font-family:serif;font-size:1.4em;display:inline-block;text-align:center;line-height:1.3"><div>3a³ − 3a²b + 9ab² − a² + ab − 3b²</div><div style="border-top:1.5px solid;padding-top:2px">2</div></div> <br> Determine la expresión de sus lados:', options: ['Lado 1: 3a-1 <br> Lado 2: a<sup>2</sup>-ab+3b<sup>2</sup>', 'Lado 1: 8a-1 <br> Lado 2: a<sup>2</sup>+ab+4b<sup>2</sup>', 'Lado 1: 13a-1 <br> Lado 2: a<sup>2</sup>-ab+3b<sup>2</sup>', 'Lado 1: 30a -1 <br> Lado 2: a<sup>2</sup>-8ab+3b<sup>2</sup>'], answer: 'Lado 1: 3a-1 <br> Lado 2: a<sup>2</sup>-ab+3b<sup>2</sup>', explanation: '<br> <img src="https://i.ibb.co/PvMvDMGR/Captura-de-pantalla-2026-10-27-144814.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Penélope compra un terreno con las siguientes dimensiones: <br> Largo:5x<sup>2</sup>+7xy-9y<sup>2</sup> <br> Ancho:5x<sup>2</sup>-7xy-9y<sup>2</sup> <br> Determine la expresión del área.', options: ['5x<sup>4</sup>+139x<sup>2</sup> y<sup>2</sup>+81y<sup>4</sup>', '25x<sup>4</sup>+139x<sup>2</sup> y<sup>2</sup>+81y<sup>4</sup>', '25x<sup>4</sup>-139x<sup>2</sup> y<sup>2</sup>+81y<sup>4</sup>', '25x<sup>4</sup>+139x<sup>2</sup> y<sup>2</sup>-81y<sup>4</sup>'], answer: '25x<sup>4</sup>-139x<sup>2</sup> y<sup>2</sup>+81y<sup>4</sup>', explanation: '<br> <img src="https://i.ibb.co/mrFYGmqv/Captura-de-pantalla-2026-10-27-144908.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Las especificaciones geométricas de un artículo manifiesta que el área de la pieza rectangular viene representada por: <br> Área: x<sup>2</sup>-7x-30 <br> Si uno de sus lados es de x-10 centímetros, determine la expresión del lado faltante:', options: ['x+3', 'x-2', 'x+10', '2x+3'], answer: 'x+3', explanation: '<br> <img src="https://i.ibb.co/B2CXXtZ0/Captura-de-pantalla-2026-10-27-144954.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Determine la expresión equivalente: <br> 36(m+n)<sup>2</sup>-121(m-n)<sup>2</sup>', options: ['(17m-5n)(17n+5m)', '6m-11n', '(17m-5n)(17n-5m)', '(6m+11n)^2'], answer: '(17m-5n)(17n-5m)', explanation: '<br> <img src="https://i.ibb.co/0R480X3h/Captura-de-pantalla-2026-10-27-145036.png" alt="Descripción de la imagen" width="500" height="500">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Las dimensiones de una hoja son: <br> largo: a<sup>2</sup>+1 <br> ancho: a+1 <br> Se desea colocar una decoración en los bordes, determine la expresión:', options: ['a<sup>3</sup>+a<sup>2</sup>+a+1', '2a<sup>2</sup>+2a+4', 'a<sup>3</sup>+a<sup>2</sup>+a+10', 'a<sup>9</sup>-9'], answer: '2a<sup>2</sup>+2a+4', explanation: '<br> <img src="https://i.ibb.co/Jwsn8pV7/Captura-de-pantalla-2026-10-27-145136.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Martina compra (a+9) celulares por (a-2) dólares cada uno, determine la expresión del valor a cancelar.', options: ['a<sup>9</sup>-9a-18', 'a<sup>2</sup>+7a+18', 'a<sup>2</sup>-9a-18', 'a<sup>2</sup>+7a-18'], answer: 'a<sup>2</sup>+7a-18', explanation: '<br> <img src="https://i.ibb.co/JRdVg9xJ/Captura-de-pantalla-2026-10-27-145226.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Seleccione la expresión equivalente de: <br> 100x<sup>10</sup>-60a<sup>4</sup> x<sup>5</sup> y<sup>6</sup>+9a<sup>8</sup> y<sup>12</sup>', options: ['(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )', '(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )(10x<sup>5</sup>+3a<sup>4</sup> y<sup>6</sup> )', '(10x<sup>5</sup>-3a<sup>4</sup> )+(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )', '(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )-(10x<sup>5</sup>-3a<sup>4</sup> )'], answer: '(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )(10x<sup>5</sup>-3a<sup>4</sup> y<sup>6</sup> )', explanation: '<br> <img src="https://i.ibb.co/KxFLjWtQ/Captura-de-pantalla-2026-10-27-145324.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Una comerciante compra cierta cantidad de camisetas a cierto precio, la pista que da, es que el precio y la cantidad son representados por el mismo número. Si el precio de todo el lote de camisetas viene representado por la siguiente expresión: <br> 16x<sup>10</sup>+40m<sup>5</sup> n<sup>6</sup>+25n<sup>12</sup> <br> Determine el precio de cada camiseta.', options: ['4m<sup>5</sup>-5n<sup>6</sup>', '4m<sup>5</sup>+5n<sup>6</sup>', '2m<sup>5</sup>-5n<sup>6</sup>', '6m<sup>5</sup>+5n<sup>6</sup>'], answer: '4m<sup>5</sup>+5n<sup>6</sup>', explanation: '<br> <img src="https://i.ibb.co/DHbbbgZk/Captura-de-pantalla-2026-10-27-145410.png" alt="Descripción de la imagen" width="500" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Seleccione la expresión equivalente de: <br> (m-n)<sup>2</sup>+6m-6n+9', options: ['(m-n+3)(m-n+3)', '(m-n+3)+(m-n+3)', '(m+n+3)(m+n+3)', '<math> <mfrac> <mi>(m-n+3)</mi> <mn>(m-n+3)</mn> </mfrac> </math>'], answer: '(m-n+3)(m-n+3)', explanation: '<br> <img src="https://i.ibb.co/ccVwbjg1/Captura-de-pantalla-2026-10-27-145617.png" alt="Descripción de la imagen" width="500" height="300">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Una fotografía tiene las siguientes dimensiones: <br> L1: 3x-2y+a+5b <br> L2: 3x-2y-a-5b <br> Determine la expresión de la longitud del marco que se debe adquirir:', options: ['4(3x-2y)', '9x<sup>2</sup>+4y<sup>2</sup>-a<sup>2</sup>-12xy-25b<sup>2</sup>-10ab', '6x-4y+2a+5b', '9x<sup>2</sup>+4y<sup>2</sup>-a<sup>2</sup>-25b<sup>2</sup>'], answer: '4(3x-2y)', explanation: '<br> <img src="https://i.ibb.co/tpHVTHns/Captura-de-pantalla-2026-10-27-145718.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Seleccione la expresión equivalente: <br> m<sup>2</sup>-2m-168', options: ['(m-14)+(m+21)', '(m-14)(m+12)', '(m+14)+(m-21)', '(m+14)(m-12)'], answer: '(m-14)(m+12)', explanation: '<br> <img src="https://i.ibb.co/5Xp5kFFG/Captura-de-pantalla-2026-10-27-145824.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Pedro compra n productos a s dólares cada uno, determine la expresión del valor total a cancelar: <br> n=a+b+c+d <br> s=a+b-c-d', options: ['(a+b)<sup>2</sup> (c+d)<sup>2</sup>', 'a<sup>2</sup>+2cd-4bd+d<sup>2</sup>', '(a+b)<sup>2</sup>-(c+d)<sup>2</sup>', 'a<sup>2</sup>+2cd-bd+8d<sup>2</sup>'], answer: '(a+b)<sup>2</sup>-(c+d)<sup>2</sup>', explanation: '<br> <img src="https://i.ibb.co/h1gVtczs/Captura-de-pantalla-2026-10-27-145927.png" alt="Descripción de la imagen" width="500" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Determine la expresión equivalente: <br> x<sup>2</sup>+12x-364', options: ['(x+26)(x-14)', '(x+28)(x-14)', '(x+16)(x-18)', '(x+25)(x-10)'], answer: '(x+26)(x-14)', explanation: '<br> <img src="https://i.ibb.co/9kFnC4QD/Captura-de-pantalla-2026-10-27-150015.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Determine la expresión equivalente: <br> (3a+2b-c)(a-c)', options: ['(2a+b-c)<sup>2</sup>-(a+b)<sup>2</sup>', '9a<sup>2</sup>-bc+7ac+c<sup>2</sup>', '(2a+b-c)<sup>2</sup>+(a-b)<sup>2</sup>', '9a<sup>2</sup>+bc-7ac+c<sup>2</sup>'], answer: '(2a+b-c)<sup>2</sup>-(a+b)<sup>2</sup>', explanation: '<br> <img src="https://i.ibb.co/gLm2Rsq3/Captura-de-pantalla-2026-10-27-150110.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        // Práctica 20 preguntas
+const quizDataExtra = [
+          { question: '  Sofía compra n productos a p dólares cada uno. Encuentra la expresión total a pagar. <br> n=x+y+z <br> p=x+y-z', options: ['(x+y)<sup>2</sup>+z<sup>2</sup>', '(x+y)<sup>2</sup>-z<sup>2</sup>', 'x<sup>2</sup>+2yz-y<sup>2</sup>', '(x+y)<sup>2</sup>+2z(x+y)'], answer: '(x+y)<sup>2</sup>-z<sup>2</sup>', explanation: '<br> <img src="https://i.ibb.co/mFHDtvmR/Captura-de-pantalla-2026-10-27-151040.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la suma de polinomios: <br> P(x)=3x<sup>3</sup>-5x<sup>2</sup>+3x+2 <br> Q(x)=2x<sup>3</sup>+4x<sup>2</sup>-5x-1 <br> P(x)+Q(x)=', options: ['5x<sup>3</sup>-x<sup>2</sup>-2x+1', '5x<sup>3</sup>+9x<sup>2</sup>+8x+3', 'x<sup>3</sup>-x<sup>2</sup>-2x+1', '6x<sup>3</sup>-x<sup>2</sup>-2x+1'], answer: '5x<sup>3</sup>-x<sup>2</sup>-2x+1', explanation: '<br> <img src="https://i.ibb.co/Wvg8ZP7w/Captura-de-pantalla-2026-10-27-151124.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la suma de polinomios: <br> P(x)=10x<sup>3</sup>+5x<sup>2</sup>-3x-11 <br> Q(x)=8+3x-x<sup>2</sup>+2x<sup>3</sup> <br> P(x)+Q(x)=', options: ['12x<sup>3</sup>+4x<sup>2</sup>+3', '18x<sup>3</sup>+8x<sup>2</sup>-4x-9', '12x<sup>3</sup>+4x<sup>2</sup>-3', '18x<sup>3</sup>+8x<sup>2</sup>-4x-8'], answer: '12x<sup>3</sup>+4x<sup>2</sup>-3', explanation: '<br> <img src="https://i.ibb.co/RG2wfGsq/Captura-de-pantalla-2026-10-27-151228.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la resta de polinomios: <br> P(x)=3x<sup>3</sup>+5x<sup>2</sup>+6x+2 <br> Q(x)=2x<sup>3</sup>-4x<sup>2</sup>-5x-1 <br> P(x)-Q(x)=', options: ['x<sup>3</sup>+x<sup>2</sup>+x+1', 'x<sup>3</sup>+9x<sup>2</sup>+11x+3', 'x<sup>3</sup>-x<sup>2</sup>-x-1', '5x<sup>3</sup>+9x<sup>2</sup>+x+3'], answer: 'x<sup>3</sup>+9x<sup>2</sup>+11x+3', explanation: '<br> <img src="https://i.ibb.co/sp3VTQHr/Captura-de-pantalla-2026-10-27-151355.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la resta de polinomios: <br> P(x)=10x<sup>3</sup>+5x<sup>2</sup>-3x-11 <br> Q(x)=8+3x-x<sup>2</sup>+2x<sup>3</sup> <br> P(x)-Q(x)=', options: ['2x<sup>3</sup>+2x<sup>2</sup>-9', '2x<sup>3</sup>+2x<sup>2</sup>-4x-13', '2x<sup>3</sup>+2x<sup>2</sup>-2x-9', '8x<sup>3</sup>+6x<sup>2</sup>-6x-19'], answer: '8x<sup>3</sup>+6x<sup>2</sup>-6x-19', explanation: '<br> <img src="https://i.ibb.co/XrqzKtfn/Captura-de-pantalla-2026-10-27-151437.png" alt="Descripción de la imagen" width="380" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la multiplicación de polinomios: <br> (x+6)(2x<sup>2</sup>+5x+7)', options: ['2x<sup>3</sup>+17x<sup>2</sup>+37x+42', '14x<sup>3</sup>+5x<sup>2</sup>+37x+42', '2x<sup>3</sup>+37x<sup>2</sup>+17x+42', '2x<sup>3</sup>+17x<sup>2</sup>+37x+24'], answer: '2x<sup>3</sup>+17x<sup>2</sup>+37x+42', explanation: '<br> <img src="https://i.ibb.co/C5yLPgkY/Captura-de-pantalla-2026-10-27-151530.png" alt="Descripción de la imagen" width="480" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la multiplicación de polinomios: <br> (6x<sup>2</sup>+7x-8)(-2x+5)', options: ['12x<sup>3</sup>+16x<sup>2</sup>+51x-40', '-12x<sup>3</sup>+16x<sup>2</sup>+51x-40', '-12x<sup>3</sup>+16x<sup>2</sup>+51x+40', '12x<sup>3</sup>+16x<sup>2</sup>-51x-40'], answer: '-12x<sup>3</sup>+16x<sup>2</sup>+51x-40', explanation: '<br> <img src="https://i.ibb.co/whqg7NbY/Captura-de-pantalla-2026-10-27-151618.png" alt="Descripción de la imagen" width="480" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la división de polinomios: <br> (3x<sup>2</sup>+2x-8)/(x+2)', options: ['-3x+4', '3x-4', '3x+2', '3x+4'], answer: '3x-4', explanation: '<br> <img src="https://i.ibb.co/Ngv7ZRDQ/Captura-de-pantalla-2026-10-27-151659.png" alt="Descripción de la imagen" width="480" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Resuelva la división de polinomios: <br> (5x<sup>4</sup>+2x<sup>5</sup>-14x<sup>2</sup>-8x<sup>3</sup>+6x+9)/(x-1)', options: ['-2x<sup>4</sup>+7x<sup>3</sup>-x<sup>2</sup>-5x-9', '-2x<sup>4</sup>+7x<sup>3</sup>-2x<sup>2</sup>-15x-9', '2x<sup>4</sup>+7x<sup>3</sup>+x<sup>2</sup>-15x+9', '2x<sup>4</sup>+7x<sup>3</sup>-x<sup>2</sup>-15x-9'], answer: '2x<sup>4</sup>+7x<sup>3</sup>-x<sup>2</sup>-15x-9', explanation: '<br> <img src="https://i.ibb.co/qYPKXZhM/Captura-de-pantalla-2026-10-27-151736.png" alt="Descripción de la imagen" width="480" height="400">.', multi: 'OFF', maxSelect: 1 },
+         { question: 'Dos nano-partículas de un material se mueven con movimiento parabólico y lineal, respectivamente. Mediante un osciloscopio se logra determinar sus funciones de trayectoria, como se indica a continuación: <br> f(x)=-x<sup>2</sup>+1 <br> g(x)=x-5 <br> Determine la función producto de f(x) y g(x) que permite amplificar las trayectorias de las dos partículas.', options: ['-x<sup>3</sup>-5x<sup>2</sup>+x-5', '-x<sup>3</sup>-5x<sup>2</sup>+x+5', '-x<sup>3</sup>+5x<sup>2</sup>+x-5', '-x<sup>3</sup>+5x<sup>2</sup>+x+5'], answer: '-x<sup>3</sup>+5x<sup>2</sup>+x-5', explanation: '<br> <img src="https://i.ibb.co/j96rGSBK/Captura-de-pantalla-2026-10-27-151850.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Determine la descomposición de los factores de la expresión algebraica: <br> x<sup>4</sup>+ax<sup>3</sup>+8x+8a', options: ['(x+a)(x+2)(x<sup>2</sup>-2x+4)', '(x+a)(x+2)(x<sup>2</sup>+2x+4)', '(x+a)(x-2)(x<sup>2</sup>-2x+4)', '(x+a)(x-2)(x<sup>2</sup>+2x+4)'], answer: '(x+a)(x+2)(x<sup>2</sup>-2x+4)', explanation: '<br> <img src="https://i.ibb.co/dJJ7S3pr/Captura-de-pantalla-2026-10-27-152113.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'En un laboratorio de circuitos electrónicos se analizan dos ondas parabólicas de un transistor y se definen así: <br> f(x)=x<sup>2</sup>+5x-24 <br> g(x)=x<sup>2</sup>-x-6 <br> Determine la función cociente f(x)/g(x) que permite analizar la onda como una función.', options: ['<math> <mfrac> <mi>x-8</mi> <mn>x-2</mn> </mfrac> </math>', '<math> <mfrac> <mi>x+8</mi> <mn>x-2</mn> </mfrac> </math>', '<math> <mfrac> <mi>x+8</mi> <mn>x+2</mn> </mfrac> </math>', '<math> <mfrac> <mi>x-8</mi> <mn>x+2</mn> </mfrac> </math>'], answer: '<math> <mfrac> <mi>x+8</mi> <mn>x+2</mn> </mfrac> </math>', explanation: '<br> <img src="https://i.ibb.co/S4VNfTwb/Captura-de-pantalla-2026-10-27-152645.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> 8a<sup>2</sup> b<sup>3</sup>-4a<sup>2</sup> b<sup>2</sup>', options: ['4a<sup>2</sup> b<sup>2</sup> (2b+1)', '4a<sup>2</sup> b<sup>2</sup> (2b)', '4a<sup>2</sup> b<sup>2</sup> (2b-1)', '4a<sup>2</sup> b<sup>2</sup> (2b-0)'], answer: '4a<sup>2</sup> b<sup>2</sup> (2b-1)', explanation: '<br> <img src="https://i.ibb.co/xKf6VkDL/Captura-de-pantalla-2026-10-27-152723.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> 17ax-17mx+3ay-3my+7az–7mz', options: ['(17x+3y+7z)(a–m)', '(17x+3y+8z)(a–m)', '(17x+6y+7z)(a–m)', '(17x+3y+7z)(m–a)'], answer: '(17x+3y+7z)(a–m)', explanation: '<br> <img src="https://i.ibb.co/SDDMj1Qz/Captura-de-pantalla-2026-10-27-152804.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> m(x + 2) – x – 2 + 3(x + 2)', options: ['(x + 2)(m -3 + 1)', '(x - 2)(m + 3 – 1)', '(x + 2)(m + 3 – 1)', '(2x+2)(m + 3 – 1)'], answer: '(x + 2)(m + 3 – 1)', explanation: '<br> <img src="https://i.ibb.co/21DB3GQF/Captura-de-pantalla-2026-10-27-152844.png" alt="Descripción de la imagen" width="580" height="400">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> 4a+4b+xa+xb', options: ['(a-b)(4+x)', '(a+b)(4+x)', '(x+b)(a+x)', '(a+4)(b+x)'], answer: '(a+b)(4+x)', explanation: '<br> <img src="https://i.ibb.co/5WBmLVK8/Captura-de-pantalla-2026-10-27-152924.png" alt="Descripción de la imagen" width="580" height="500">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> 4x<sup>3</sup>-4x<sup>2</sup>+x-1', options: ['(x+1)(4x<sup>2</sup>+1)', '(x-1)(4x<sup>2</sup>-1)', '(x-1)(4x<sup>2</sup>+1)', '(1-x)(4x<sup>2</sup>+1)'], answer: '(x-1)(4x<sup>2</sup>+1)', explanation: '<br> <img src="https://i.ibb.co/MDPJ3yPC/Captura-de-pantalla-2026-10-27-153010.png" alt="Descripción de la imagen" width="580" height="500">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> (x-5)<sup>2</sup>', options: ['x<sup>2</sup>-10x+25', 'x<sup>2</sup>+10x+25', 'x<sup>2</sup>-10x-25', 'x<sup>2</sup>-5x+10'], answer: 'x<sup>2</sup>-10x+25', explanation: '<br> <img src="https://i.ibb.co/4RPK6c5X/Captura-de-pantalla-2026-10-27-153048.png" alt="Descripción de la imagen" width="580" height="500">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> (3x<sup>2</sup>-8y<sup>3</sup>)(3x<sup>2</sup>+8y<sup>3</sup>)', options: ['9x<sup>4</sup>+64y<sup>6</sup>', '9x<sup>4</sup>-64y<sup>6</sup>', '6x<sup>4</sup>-16y<sup>6</sup>', '6x<sup>4</sup>-16y<sup>9</sup>'], answer: '9x<sup>4</sup>-64y<sup>6</sup>', explanation: '<br> <img src="https://i.ibb.co/QFzX8JkT/Captura-de-pantalla-2026-10-27-153124.png" alt="Descripción de la imagen" width="580" height="500">.', multi: 'OFF', maxSelect: 1 },
+          { question: 'Factorice <br> 4x+4', options: ['2(x+2)', '4(x-1)', '4(x+4)', '4(x+1)'], answer: '4(x+1)', explanation: '<br> <img src="https://i.ibb.co/dJpy7Gk3/Captura-de-pantalla-2026-10-27-153200.png" alt="Descripción de la imagen" width="580" height="500">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        // EVALUACIÓN 16 preguntas
+const quizDataEvaluacion = [
+            { question: 'El área de una lámina rectangular metálica está determinada por la ecuación <br> 𝐴 = 12x<sup>2</sup> + 12y<sup>2</sup> − 8x<sup>2</sup>− 37y<sup>2</sup>.Determine la expresión que indique las dimensiones de los lados de la lámina metálica en función de (x) y (y).', options: ['(𝟐𝒙−𝟓𝒚)(𝟐𝒙−𝟓𝒚)', '(𝟐𝒙−𝟓𝒚)(𝟐𝒙+𝟓𝒚)', '(𝟓𝒚−𝟐𝒙)(𝟐𝒙+𝟓𝒚)', '(𝟐𝒙+𝟓𝒚)(𝟐𝒙+𝟓𝒚)'], answer: '(𝟐𝒙−𝟓𝒚)(𝟐𝒙+𝟓𝒚)', explanation: ' <br> <img src="https://i.ibb.co/23dG0JN4/Captura-de-pantalla-2026-10-28-141557.png" alt="Descripción de la imagen" width="450" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un estudiante de agronomía debe realizar el plano de una parcela rectangular de terreno. Si dispone de la información del área <br> A = x<sup>2</sup> + 13x + 36 y uno de sus lados Lado₁ = x + 9, determine la expresión del lado faltante del terreno.', options: ['x – 4', 'x – 9', 'x + 4', '2x + 9'], answer: 'x + 4', explanation: ' <br> <img src="https://i.ibb.co/hxsxc5gp/Captura-de-pantalla-2026-10-28-142210.png" alt="Descripción de la imagen" width="250" height="250">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'El área de una pared rectangular viene dada por la expresión: A = 15x<sup>2</sup>  - 10x. Se sabe que la base es Base = 5x. Determine la altura de la pared.', options: ['3x – 2', '3x + 2', '5x – 2', 'x - 2'], answer: '3x – 2', explanation: ' <br> <img src="https://i.ibb.co/M5WsrfP0/Captura-de-pantalla-2026-10-28-142516.png" alt="Descripción de la imagen" width="280" height="280">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Encuentre la suma de los siguientes polinomios analizados en un circuito matemático: P(x) = 3x<sup>3</sup> - 5x<sup>2</sup> + 3x + 2 y Q(x) = 2x<sup>3</sup> + 4x<sup>2</sup> - 5x - 1.', options: ['5x<sup>3</sup> - 9x<sup>2</sup> - 2x + 1', '5x<sup>3</sup> - x<sup>2</sup> - 2x + 1', 'x<sup>3</sup> - x<sup>2</sup> - 2x – 3', '5x<sup>3</sup> - x<sup>2</sup> + 8x + 3'], answer: '5x<sup>3</sup> - x<sup>2</sup> - 2x + 1', explanation: ' <br> <img src="https://i.ibb.co/ycw0kFsJ/Captura-de-pantalla-2026-10-28-143329.png" alt="Descripción de la imagen" width="380" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Resuelva la resta de polinomios P(x) - Q(x) sabiendo que: P(x) = 3x<sup>3</sup> + 5x<sup>2</sup> + 6x + 2 y Q(x) = 2x<sup>3</sup> - 4x<sup>2</sup> - 5x - 1.', options: ['x<sup>3</sup> + x<sup>2</sup> + 11x + 3', '5x<sup>3</sup> + 9x<sup>2</sup> + x + 3', 'x<sup>3</sup> + 9x<sup>2</sup> + 11x + 3', 'x<sup>3</sup> - 9x<sup>2</sup> - 11x - 3'], answer: 'x<sup>3</sup> + 9x<sup>2</sup> + 11x + 3', explanation: ' <br> <img src="https://i.ibb.co/YBckJQxS/Captura-de-pantalla-2026-10-28-144517.png" alt="Descripción de la imagen" width="480" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'El lado de un terreno cuadrado viene dado por la expresión: 7x + 11. Seleccione la expresión equivalente a su área total.', options: ['49x<sup>2</sup> + 77x + 121', '14x<sup>2</sup> + 154x + 22', '49x<sup>2</sup> + 154x + 121', '56x<sup>2</sup> + 197x + 111'], answer: '49x<sup>2</sup> + 154x + 121', explanation: ' <br> <img src="https://i.ibb.co/Y4mfrDfs/Captura-de-pantalla-2026-10-28-144926.png" alt="Descripción de la imagen" width="280" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Los lados de una mesa rectangular miden Lado₁ = x - 8 y Lado₂ = x - 1. Determine la expresión algebraica que define su área:', options: ['x<sup>2</sup> - 9x – 8', 'x<sup>2</sup> - 9x + 8', 'x<sup>2</sup> + 9x + 8', '2x<sup>2</sup> - 9x + 8'], answer: 'x<sup>2</sup> - 9x + 8', explanation: ' <br> <img src="https://i.ibb.co/rKJpQfmM/Captura-de-pantalla-2026-10-28-145906.png" alt="Descripción de la imagen" width="280" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'En un análisis de optimización, se requiere resolver la división de los polinomios: (3x<sup>2</sup> + 2x - 8) ÷ (x + 2). ¿Cuál es el cociente exacto?', options: ['3x – 4', '3x + 4', '2x – 2', '6 - 3x'], answer: '3x – 4', explanation: ' <br> <img src="https://i.ibb.co/nMc8HRZQ/Captura-de-pantalla-2026-10-28-151237.png" alt="Descripción de la imagen" width="280" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos nanopartículas se mueven con trayectorias lineales y parabólicas definidas por las funciones f(x) = -x<sup>2</sup> + 1 y g(x) = x - 5. Determine la función producto f(x) ⋅ g(x)', options: ['2x<sup>4</sup> + 7x<sup>3</sup> - x<sup>2</sup> - 15x – 9', '-x<sup>3</sup> + 5x<sup>2</sup> + x – 5', '-x<sup>3</sup> - 5x<sup>2</sup> - x + 5', 'x<sup>3</sup> +5x<sup>2</sup> - x + 5'], answer: '-x<sup>3</sup> + 5x<sup>2</sup> + x – 5', explanation: ' <br> <img src="https://i.ibb.co/XfVGrXY8/Captura-de-pantalla-2026-10-28-152055.png" alt="Descripción de la imagen" width="280" height="290">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'En un laboratorio de circuitos electrónicos se analiza el comportamiento de dos señales definidas por las funciones f(x) = x<sup>2</sup> + 5x - 24 y g(x) = x<sup>2</sup> - x - 6. Determine la función cociente simplificada f(x) / g(x).', options: ['(x - 8) / (x - 2)', '(x + 8) / (x - 2)', '(x + 8) / (x + 2)', '(x - 8) / (x + 2)'], answer: '(x + 8) / (x + 2)', explanation: ' <br> <img src="https://i.ibb.co/vvVRqK9m/Captura-de-pantalla-2026-10-28-152306.png" alt="Descripción de la imagen" width="480" height="390">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Una comerciante vende un lote de ropa cuyo precio total está dado por la expresión: 16x<sup>10</sup> + 40m<sup>5</sup>n<sup>6</sup> + 25n<sup>12</sup>. Si se sabe que el precio por unidad coincide exactamente con la cantidad de artículos comprados, determine la expresión matemática del valor unitario de cada artículo.', options: ['4x<sup>5</sup> + 5n<sup>6</sup>', '4x<sup>5</sup> - 5n<sup>6</sup>', '2x<sup>5</sup> + 5n<sup>6</sup>', '16x<sup>5</sup> + 25n<sup>6</sup>'], answer: '4x<sup>5</sup> + 5n<sup>6</sup>', explanation: ' <br> <img src="https://i.ibb.co/Kj6b7y01/Captura-de-pantalla-2026-10-28-153758.png" alt="Descripción de la imagen" width="480" height="390">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Factorice completamente el monomio compuesto de la siguiente expresión de hardware: <br> g (x)=8a<sup>2</sup>b<sup>3</sup>  - 4a<sup>2</sup>b<sup>2</sup>.', options: ['4a<sup>2</sup>b<sup>2</sup>(2b)', '4a<sup>2</sup>b<sup>2</sup>(2b - 1)', '2a<sup>2</sup>b<sup>2</sup>(4b - 1)', '4a<sup>2</sup>b<sup>2</sup>(2b - 2)'], answer: '4a<sup>2</sup>b<sup>2</sup>(2b - 1)', explanation: ' <br> <img src="https://i.ibb.co/zVv1k4qY/Captura-de-pantalla-2026-10-28-154649.png" alt="Descripción de la imagen" width="280" height="190">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Encuentre la descomposición factorial equivalente de la siguiente función polinómica: x<sup>4</sup> + ax<sup>3</sup> + 8x + 8a.', options: ['(x + a)(x - 2)(x<sup>2</sup> - 2x + 4)', '(x + a)(x + 2)(x<sup>2</sup> - 2x + 4)', '(x - a)(x + 2)(x<sup>2</sup> + 2x + 4)', '(x + a)(x - 2)(x<sup>2</sup> + 2x + 4)'], answer: '(x + a)(x + 2)(x<sup>2</sup> - 2x + 4)', explanation: ' <br> <img src="https://i.ibb.co/gZDK48jn/Captura-de-pantalla-2026-10-28-160047.png" alt="Descripción de la imagen" width="280" height="190">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un terreno rectangular de geometría compleja tiene como expresión de área: 9x<sup>2</sup> + 4y<sup>2</sup> - a<sup>2</sup>  - 12xy - 25b<sup>2</sup> - 10ab. Seleccione sus dimensiones equivalentes (Largo ⋅ Ancho) tras agrupar y factorizar.', options: ['(3x - 2y - a - 5b)(3x - 2y + a + 5b)', '(3x + 2y - a - 5b)(3x - 2y - a - 5b)', '(6x - 4y + 2a)(5b + 3x)', '(9x<sup>2</sup> + 4y<sup>2</sup>)(a<sup>2</sup> - 25b<sup>2</sup>)'], answer: '(3x - 2y - a - 5b)(3x - 2y + a + 5b)', explanation: ' <br> <img src="https://i.ibb.co/mr4X5xg4/Captura-de-pantalla-2026-10-28-161151.png" alt="Descripción de la imagen" width="380" height="190">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Resuelva el producto de los siguientes polinomios cuidando la ley de los signos: (6x<sup>2</sup> + 7x - 8) ⋅ (-2x + 5)', options: ['12x<sup>3</sup> + 16x<sup>2</sup> + 51x – 40', '-12x<sup>3</sup> + 16x<sup>2</sup> + 51x – 40', '-12x<sup>3</sup> + 16x<sup>2</sup> + 51x + 40', '12x<sup>3</sup> + 16x<sup>2</sup> - 51x - 40'], answer: '-12x<sup>3</sup> + 16x<sup>2</sup> + 51x – 40', explanation: ' <br> <img src="https://i.ibb.co/FLJqmXwv/Captura-de-pantalla-2026-10-28-161929.png" alt="Descripción de la imagen" width="380" height="200">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Una fotografía rectangular tiene como expresión de área 𝐴 = x<sup>2</sup> + 𝑥𝑦 + 𝑥𝑧 + 𝑦𝑧. Si se conoce que la medida de su base es (x + y), determine la expresión algebraica que representa la altura.', options: ['y +2 z', 'x – z', '2x + y', 'x + z'], answer: 'x + z', explanation: '<br> <img src="https://i.ibb.co/rR5bSYC1/Captura-de-pantalla-2026-10-28-162123.png" alt="Descripción de la imagen" width="380" height="400">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        // ========== CONFIGURACIÓN DEL TEMPORIZADOR DE EVALUACIÓN ==========
+        const EVAL_TIMER_SECONDS = 960; // 16 minutos
+
+        const EVAL_TIMER_PHASES = [
+            { minSeconds: 480, colorClass: 'text-emerald-600 bg-emerald-50 border-emerald-300' },
+            { minSeconds: 60,  colorClass: 'text-amber-600 bg-amber-50 border-amber-300' },
+            { minSeconds: 0,   colorClass: 'text-red-600 bg-red-50 border-red-300' }
+        ];
+        // ==================================================================
+
+        let state = {
+            currentMode: 'deber',
+            view: 'quiz_home',
+            studentName: '',
+            studentEmail: '',
+            activeQuestions: [],
+            currentQuestion: 0,
+            score: 0,
+            selectedAnswer: null,
+            isAnswerCorrect: null,
+            emailStatus: null,
+            emailAnalysis: null,
+            emailAnalysisMsg: '',
+            timeLeft: 0
+        };
+
+        let timerInterval = null;
+
+        const disposableDomains = [
+            'tempmail.com','temp-mail.org','guerrillamail.com','10minutemail.com','mailinator.com',
+            'yopmail.com','throwawaymail.com','fakeinbox.com','trashmail.com','getnada.com',
+            'maildrop.cc','dispostable.com','sharklasers.com','guerrillamailblock.com'
+        ];
+        const trustedProviders = [
+            'gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.co.uk','outlook.com',
+            'outlook.es','live.com','msn.com','yahoo.com','yahoo.es','icloud.com','me.com',
+            'protonmail.com','proton.me','aol.com','zoho.com','gmx.com','mail.com'
+        ];
+
+        function isValidEmailFormat(email) {
+            const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+            return re.test(email) && email.length <= 254 && !email.includes('..') && !email.startsWith('.') && !email.endsWith('.');
+        }
+
+        function analyzeEmail(email) {
+            const lower = email.toLowerCase().trim();
+            if (!lower) return { valid: false, msg: 'Escribe un correo electrónico.' };
+            if (!isValidEmailFormat(lower)) return { valid: false, msg: 'Formato inválido. Revisa que tenga @ y un dominio correcto.' };
+            const domain = lower.split('@')[1];
+            if (!domain || domain.length < 3) return { valid: false, msg: 'Dominio incompleto o inválido.' };
+            if (disposableDomains.some(d => domain === d || domain.endsWith('.' + d))) {
+                return { valid: false, msg: 'Correo temporal / desechable detectado. Usa un correo real.' };
+            }
+            const isTrusted = trustedProviders.some(p => domain === p);
+            const hasGoodTld = /\.(com|es|net|org|edu|gov|mx|ar|co|uk|de|fr|it|pt|br|cl)$/i.test(domain);
+            if (!hasGoodTld && !isTrusted) {
+                return { valid: false, msg: 'Dominio poco común o sospechoso. Usa Gmail, Hotmail/Outlook, Yahoo, etc.' };
+            }
+            let analysisText = '';
+            if (domain.includes('hotmail') || domain.includes('outlook') || domain.includes('live.com') || domain.includes('msn.com')) {
+                analysisText = 'Análisis: proveedor Microsoft (Hotmail/Outlook) detectado · formato correcto · dominio legítimo';
+            } else if (domain.includes('gmail') || domain.includes('googlemail')) {
+                analysisText = 'Análisis: proveedor Google (Gmail) detectado · formato correcto · dominio legítimo';
+            } else if (isTrusted) {
+                analysisText = 'Análisis: proveedor conocido · formato correcto · dominio legítimo';
+            } else {
+                analysisText = 'Análisis: formato válido · dominio con TLD estándar · no se detectaron patrones de correo temporal';
+            }
+            return { valid: true, msg: analysisText };
+        }
+
+        function showSection(section, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stopTimer();
+            const app = document.getElementById('app');
+            if (section === 'pdf') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">📄 Pizarra Virtual</h2><div class="iframe-container"><iframe src="${DRIVE_PDF_URL}" width="100%" height="100%" allow="autoplay"></iframe></div></div>`;
+            } else if (section === 'video') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">🎥 Video Clase</h2><div class="iframe-container"><iframe src="${DRIVE_VIDEO_URL}" width="100%" height="100%" allow="autoplay"></iframe></div></div>`;
+            }
+        }
+
+        function prepQuiz(mode, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stopTimer();
+            state = {
+                currentMode: mode,
+                view: 'quiz_home',
+                studentName: '',
+                studentEmail: '',
+                activeQuestions: [],
+                currentQuestion: 0,
+                score: 0,
+                selectedAnswer: null,
+                isAnswerCorrect: null,
+                emailStatus: null,
+                emailAnalysis: null,
+                emailAnalysisMsg: '',
+                timeLeft: 0
+            };
+            render();
+        }
+
+        function startQuiz() {
+            if (state.currentMode === 'deber') {
+                state.activeQuestions = [...quizData];
+            } else if (state.currentMode === 'evaluacion') {
+                state.activeQuestions = [...quizData]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 10);
+            } else if (state.currentMode === 'extra') {
+                state.activeQuestions = [...quizDataExtra];
+            } else if (state.currentMode === 'evaluacion_final') {
+                state.activeQuestions = [...quizDataEvaluacion];
+            }
+            state.view = 'name_input';
+            state.emailAnalysis = null;
+            state.emailAnalysisMsg = '';
+            render();
+        }
+
+        function onEmailInput() {
+            const e = document.getElementById('email-in');
+            if (!e) return;
+            const val = e.value.trim();
+            if (val.length < 5) {
+                state.emailAnalysis = null;
+                state.emailAnalysisMsg = '';
+                updateEmailUI();
+                return;
+            }
+            state.emailAnalysis = 'checking';
+            state.emailAnalysisMsg = 'Analizando correo…';
+            updateEmailUI();
+            clearTimeout(window._emailCheckTimer);
+            window._emailCheckTimer = setTimeout(() => {
+                const result = analyzeEmail(val);
+                state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+                state.emailAnalysisMsg = result.msg;
+                updateEmailUI();
+            }, 600);
+        }
+
+        function updateEmailUI() {
+            const feedback = document.getElementById('email-feedback');
+            const analysis = document.getElementById('email-analysis');
+            const input = document.getElementById('email-in');
+            if (!feedback || !analysis || !input) return;
+            if (state.emailAnalysis === 'checking') {
+                feedback.innerHTML = `<span class="text-slate-500 text-sm flex items-center gap-2"><span class="dot-pulse">●</span> Verificando…</span>`;
+                analysis.innerHTML = `<p class="text-xs text-slate-400 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            } else if (state.emailAnalysis === 'invalid') {
+                feedback.innerHTML = `<span class="text-red-600 text-sm font-semibold">✗ Correo no válido o inexistente</span>`;
+                analysis.innerHTML = `<p class="text-xs text-red-500/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-emerald-400', 'border-slate-300');
+                input.classList.add('border-red-400');
+            } else if (state.emailAnalysis === 'valid') {
+                feedback.innerHTML = `<span class="text-emerald-600 text-sm font-semibold">✓ Correo aceptado</span>`;
+                analysis.innerHTML = `<p class="text-xs text-emerald-600/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-slate-300');
+                input.classList.add('border-emerald-400');
+            } else {
+                feedback.innerHTML = '';
+                analysis.innerHTML = '';
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            }
+        }
+
+        function validaDatos() {
+            const n = document.getElementById('name-in').value.trim();
+            const e = document.getElementById('email-in').value.trim();
+            if (n.length <= 2) {
+                alert("Ingresa nombre completo (mínimo 3 caracteres).");
+                return;
+            }
+            const result = analyzeEmail(e);
+            state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+            state.emailAnalysisMsg = result.msg;
+            updateEmailUI();
+            if (!result.valid) return;
+            state.studentName = n;
+            state.studentEmail = e;
+            state.view = 'playing';
+            if (state.currentMode === 'evaluacion_final') {
+                startTimer();
+            }
+            render();
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function getTimerPhaseClass(remaining) {
+            for (const phase of EVAL_TIMER_PHASES) {
+                if (remaining >= phase.minSeconds) {
+                    return phase.colorClass;
+                }
+            }
+            return EVAL_TIMER_PHASES[EVAL_TIMER_PHASES.length - 1].colorClass;
+        }
+
+        function startTimer() {
+            stopTimer();
+            state.timeLeft = EVAL_TIMER_SECONDS;
+            timerInterval = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 0;
+                    stopTimer();
+                    state.view = 'results';
+                    render();
+                    enviarCorreo();
+                    return;
+                }
+                const timerEl = document.getElementById('eval-timer');
+                if (timerEl) {
+                    timerEl.textContent = formatTime(state.timeLeft);
+                    timerEl.className = `px-3 py-1.5 rounded-xl border-2 font-black text-sm tabular-nums ${getTimerPhaseClass(state.timeLeft)}`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function isMultiQuestion(q) {
+            return q.multi === 'ON';
+        }
+
+        function arraysEqual(a, b) {
+            if (!Array.isArray(a) || !Array.isArray(b)) return false;
+            if (a.length !== b.length) return false;
+            const sa = [...a].sort();
+            const sb = [...b].sort();
+            return sa.every((v, i) => v === sb[i]);
+        }
+
+        function handleAnswer(idx) {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            const option = currentQ.options[idx];
+
+            if (isMultiQuestion(currentQ)) {
+                let selected = Array.isArray(state.selectedAnswer) ? [...state.selectedAnswer] : [];
+                const pos = selected.indexOf(option);
+                if (pos > -1) {
+                    selected.splice(pos, 1);
+                } else {
+                    if (selected.length >= currentQ.maxSelect) return;
+                    selected.push(option);
+                }
+                state.selectedAnswer = selected;
+                render();
+            } else {
+                if (state.selectedAnswer !== null) return;
+                state.selectedAnswer = option;
+                state.isAnswerCorrect = (option === currentQ.answer);
+                if (state.isAnswerCorrect) state.score++;
+                render();
+                if (state.isAnswerCorrect) {
+                    setTimeout(() => nextQuestion(), 1000);
+                }
+            }
+        }
+
+        function checkMultiAnswer() {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            if (!isMultiQuestion(currentQ)) return;
+            const selected = Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [];
+            if (selected.length === 0) return;
+            const correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+            state.isAnswerCorrect = arraysEqual(selected, correctAnswers);
+            if (state.isAnswerCorrect) state.score++;
+            render();
+            if (state.isAnswerCorrect) {
+                setTimeout(() => nextQuestion(), 1000);
+            }
+        }
+
+        function nextQuestion() {
+            if (state.currentQuestion + 1 < state.activeQuestions.length) {
+                state.currentQuestion++;
+                state.selectedAnswer = null;
+                state.isAnswerCorrect = null;
+                render();
+            } else {
+                stopTimer();
+                state.view = 'results';
+                render();
+                enviarCorreo();
+            }
+        }
+
+        function enviarCorreo() {
+            if (!state.studentEmail) return;
+            state.emailStatus = 'sending';
+            render();
+            const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+            const totalQ = state.activeQuestions.length;
+            let imageUrl = '';
+            let mensaje = '';
+            if (scorePerc >= 90) {
+                imageUrl = 'https://img.icons8.com/color/128/medal2.png';
+                mensaje = `¡Excelente trabajo, ${state.studentName}! Obtuviste un resultado sobresaliente.`;
+            } else if (scorePerc >= 70) {
+                imageUrl = 'https://img.icons8.com/color/128/diploma.png';
+                mensaje = `¡Muy bien, ${state.studentName}! Has aprobado con un buen resultado.`;
+            } else if (scorePerc >= 50) {
+                imageUrl = 'https://img.icons8.com/color/128/ok.png';
+                mensaje = `Buen esfuerzo, ${state.studentName}. Sigue practicando para mejorar.`;
+            } else {
+                imageUrl = 'https://img.icons8.com/color/128/error.png';
+                mensaje = `Ánimo, ${state.studentName}. Revisa el material y vuelve a intentarlo.`;
+            }
+            const params = {
+                to_name: state.studentName,
+                to_email: state.studentEmail,
+                score: scorePerc,
+                correct_answers: state.score,
+                total_questions: totalQ,
+                mode_name: state.currentMode.toUpperCase(),
+                image_url: imageUrl,
+                mensaje: mensaje,
+                fecha: new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                })
+            };
+            emailjs.send("service_dhvsi72", "template_cy74x9h", params)
+                .then(() => {
+                    state.emailStatus = 'success';
+                    render();
+                })
+                .catch((err) => {
+                    console.error('Error EmailJS:', err);
+                    state.emailStatus = 'error';
+                    render();
+                });
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+           
+            let modeTitle = '';
+            let modeDesc = '';
+            if (state.currentMode === 'deber') {
+                modeTitle = '🧪 Deber';
+                modeDesc = 'Resuelve las 30 preguntas del banco en orden.';
+            } else if (state.currentMode === 'evaluacion') {
+                modeTitle = '📝 Repaso';
+                modeDesc = 'Prueba de 10 preguntas seleccionadas al azar.';
+            } else if (state.currentMode === 'extra') {
+                modeTitle = '📚 Práctica';
+                modeDesc = 'Resuelve las 20 preguntas de la Práctica.';
+            } else if (state.currentMode === 'evaluacion_final') {
+                modeTitle = '📊 Evaluación';
+                modeDesc = 'Resuelve las 16 preguntas de la Evaluación (tiempo límite: 16 min).';
+            }
+           
+            if (state.view === 'quiz_home') {
+                app.innerHTML = `
+                <div class="text-center py-16 animate-fade-in bg-white rounded-[3rem] shadow-xl border">
+                    <h2 class="text-4xl font-black text-slate-800 mb-2">${modeTitle}</h2>
+                    <p class="text-slate-500 mb-8 text-lg">${modeDesc}</p>
+                    <button onclick="startQuiz()" class="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-emerald-700 transition-all">
+                        INICIAR
+                    </button>
+                </div>`;
+            }
+
+            if (state.view === 'name_input') {
+                app.innerHTML = `
+                <div class="max-w-md mx-auto bg-white p-10 rounded-[2.5rem] shadow-2xl animate-fade-in">
+                    <h2 class="text-2xl font-black mb-6 text-center">Registro de Estudiante</h2>
+                    <input id="name-in" type="text" placeholder="Nombre y Apellido completo" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 focus:border-emerald-500 outline-none">
+                   
+                    <div class="relative mb-1">
+                        <input id="email-in" type="email" placeholder="Correo para recibir nota (Gmail, Hotmail…)"
+                               class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl focus:border-emerald-500 outline-none transition-colors"
+                               oninput="onEmailInput()" onblur="onEmailInput()">
+                    </div>
+                   
+                    <div id="email-feedback" class="min-h-[22px] mb-1"></div>
+                    <div id="email-analysis" class="mb-5"></div>
+                   
+                    <button onclick="validaDatos()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all">
+                        ENTRAR AL TEST
+                    </button>
+                    <p class="text-center text-[11px] text-slate-400 mt-4">Se verifica formato y se descartan correos temporales. No se envía nada hasta terminar el test.</p>
+                </div>`;
+                setTimeout(updateEmailUI, 50);
+            }
+
+            if (state.view === 'playing') {
+                const q = state.activeQuestions[state.currentQuestion];
+                const progress = ((state.currentQuestion + 1) / state.activeQuestions.length) * 100;
+                const multi = isMultiQuestion(q);
+                const selected = multi
+                    ? (Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [])
+                    : (state.selectedAnswer ? [state.selectedAnswer] : []);
+
+                const multiHint = multi
+                    ? `<p class="text-sm text-sky-600 font-semibold mb-4">
+                         Selección múltiple · elige ${q.maxSelect} respuesta${q.maxSelect > 1 ? 's' : ''}
+                         ${selected.length > 0 ? `(${selected.length}/${q.maxSelect})` : ''}
+                       </p>`
+                    : '';
+
+                const timerHtml = (state.currentMode === 'evaluacion_final')
+                    ? `<div id="eval-timer" class="px-3 py-1.5 rounded-xl border-2 font-black text-sm tabular-nums ${getTimerPhaseClass(state.timeLeft)}">
+                           ${formatTime(state.timeLeft)}
+                       </div>`
+                    : '';
+
+                app.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex justify-between items-center mb-6 px-4 gap-4">
+                        <span class="font-black text-emerald-600">${state.currentQuestion + 1} / ${state.activeQuestions.length}</span>
+                        <div class="flex-1 max-w-xs bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full transition-all" style="width:${progress}%"></div>
+                        </div>
+                        ${timerHtml}
+                    </div>
+                    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2 leading-tight">${q.question}</h2>
+                        ${multiHint}
+                        <div class="grid gap-3">
+                            ${q.options.map((opt, idx) => {
+                                let style = "border-slate-100 bg-slate-50 hover:border-emerald-200";
+                                const isSelected = selected.includes(opt);
+
+                                if (state.isAnswerCorrect !== null) {
+                                    if (multi) {
+                                        const correctSet = Array.isArray(q.answer) ? q.answer : [q.answer];
+                                        if (correctSet.includes(opt) && isSelected) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected && !correctSet.includes(opt)) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        } else if (correctSet.includes(opt) && !isSelected) {
+                                            style = "border-emerald-300 bg-emerald-50 text-emerald-700";
+                                        }
+                                    } else {
+                                        if (opt === q.answer) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        }
+                                    }
+                                } else if (isSelected) {
+                                    if (multi) {
+                                        style = "border-sky-400 bg-sky-100 text-sky-800";
+                                    } else {
+                                        style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                    }
+                                }
+
+                                return `<button onclick="handleAnswer(${idx})" 
+                                            class="p-5 text-left border-2 rounded-xl font-bold transition-all ${style}">
+                                            ${opt}
+                                        </button>`;
+                            }).join('')}
+                        </div>
+
+                        ${multi && state.isAnswerCorrect === null ? `
+                            <button onclick="checkMultiAnswer()" 
+                                class="mt-6 w-full py-4 rounded-xl font-bold transition-all
+                                ${selected.length === q.maxSelect 
+                                    ? 'bg-sky-600 text-white hover:bg-sky-700' 
+                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'}"
+                                ${selected.length !== q.maxSelect ? 'disabled' : ''}>
+                                Comprobar respuesta (${selected.length}/${q.maxSelect})
+                            </button>
+                        ` : ''}
+
+                        ${state.selectedAnswer !== null && state.isAnswerCorrect === false ? `
+                            <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                                <p class="font-bold text-amber-800 mb-2">Explicación:</p>
+                                <p class="text-slate-700">${q.explanation}</p>
+                            </div>
+                            <button onclick="nextQuestion()" class="mt-6 w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                                Siguiente pregunta
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>`;
+            }
+
+            if (state.view === 'results') {
+                const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+                app.innerHTML = `
+                <div class="max-w-md mx-auto text-center animate-fade-in bg-white p-12 rounded-[3rem] shadow-2xl">
+                    <h2 class="text-2xl font-black mb-2">${state.studentName}</h2>
+                    <p class="text-slate-400 uppercase text-xs font-bold mb-6">${state.currentMode}</p>
+                    <div class="text-7xl font-black text-emerald-600 mb-4">${scorePerc}%</div>
+                    <p class="text-lg font-bold text-slate-700 mb-10">${state.score} / ${state.activeQuestions.length} correctas</p>
+                    <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">VOLVER AL INICIO</button>
+                    <p class="mt-6 text-xs font-bold text-slate-400">
+                        ${state.emailStatus === 'success' ? '✅ Nota e imagen enviadas al correo' :
+                          state.emailStatus === 'error' ? '⚠️ Error al enviar nota e imagen' :
+                          '⏳ Enviando nota e imagen al correo...'}
+                    </p>
+                </div>`;
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
+
